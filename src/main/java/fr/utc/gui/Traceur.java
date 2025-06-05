@@ -17,6 +17,7 @@ public class Traceur {
 	private double angle = 90;
 	private double teta;
 	ObjectProperty<GraphLineParameter> line;
+	private boolean crayonBaisse = true;
 
 	public Traceur() {
 		setTeta();
@@ -34,11 +35,21 @@ public class Traceur {
 	private void addLine(double x1, double y1, double x2, double y2) {
 		line.setValue(new GraphLineParameter(x1, y1, x2, y2, couleur));
 	}
+	
+	public void allerA(double x, double y) {
+		if (crayonBaisse) {
+			addLine(posx, posy, x, y);
+		}
+		posx = x;
+		posy = y;
+	}
 
 	public void avance(double r) {
 		double a = posx + r * Math.cos(teta);
 		double b = posy - r * Math.sin(teta);
-		addLine(posx, posy, a, b);
+		if (crayonBaisse) {
+			addLine(posx, posy, a, b);
+		}
 
 		posx = a;
 		posy = b;
@@ -48,5 +59,22 @@ public class Traceur {
 		angle = (angle - r) % 360;
 		setTeta();
 	}
+	
+	public void leverCrayon() {
+		crayonBaisse = false;
+	}
+	
+	public void baisserCrayon() {
+		crayonBaisse = true;
+	}
 
+	public void changerCouleur(Color couleur) {
+		this.couleur = couleur;
+		
+	}
+	
+	public void changerAngle(Double angle) {
+		this.angle = angle;
+		setTeta();
+	}
 }
