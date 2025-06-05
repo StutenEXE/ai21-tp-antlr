@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import fr.utc.gui.Traceur;
 import fr.utc.parsing.LogoParser.AvContext;
 import fr.utc.parsing.LogoParser.FloatContext;
+import fr.utc.parsing.LogoParser;
 import fr.utc.parsing.LogoParser.*;
 import javafx.beans.property.StringProperty;
 
@@ -248,6 +249,20 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	        setValue(ctx, result);
 	    }
 	    return b;
+	}
+	
+	@Override
+	public Integer visitRepete(RepeteContext ctx) {
+		int b = visit(ctx.expr());
+		if(b==0) {
+			for (int i=0; i<getValue(ctx.expr()); i++) {
+				setValue(ctx, i+1);
+				log.defaultLog(ctx);
+				log.appendLog("Tour n° ", String.valueOf(i));
+				visit(ctx.instruction());
+			}	
+		}
+		return b;
 	}
 	
 

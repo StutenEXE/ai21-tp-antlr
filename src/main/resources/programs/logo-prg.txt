@@ -1,17 +1,10 @@
+store
 av 100 - (10 + 20)
 td 90
 lc
 fcc 1
-av (50*10/20)
-tg 90
-bc 
-fcc 4
 av 100
-lc
-td 90
-av 25
 bc 
-re 75
 fcc 2
 store
 fpos [10 10]
@@ -24,3 +17,8 @@ td hasard(100)
 fcc 1
 av 100 * cos(60)
 move
+lc
+move
+bc
+fcap 0
+repete 4 [ av 10 ]

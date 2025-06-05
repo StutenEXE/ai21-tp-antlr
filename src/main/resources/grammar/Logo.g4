@@ -27,6 +27,7 @@ instruction :
  | 'fcap' expr #fcap 
  | 'store' # store
  | 'move' # move
+ | 'repete' expr '[' instruction ']' # repete
 ; 
 
 expr:
