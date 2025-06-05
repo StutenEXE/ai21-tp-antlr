@@ -102,8 +102,10 @@ public class Traceur {
 	}
 	
 	public void move() {
-		Pair<Double, Double> lastSavPos = this.position.pop();
-		this.teleport(lastSavPos.a, lastSavPos.b);
+		if(!this.position.isEmpty()) {
+			Pair<Double, Double> lastSavPos = this.position.pop();
+			this.teleport(lastSavPos.a, lastSavPos.b);	
+		}
 	}
 
 }

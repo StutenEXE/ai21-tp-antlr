@@ -38,4 +38,5 @@ expr:
  | 'hasard' '(' expr ')' # hasard
  | 'cos' '(' expr ')' # cos
  | 'sin' '(' expr ')' # sin
+ | 'loop' # loop
 ;

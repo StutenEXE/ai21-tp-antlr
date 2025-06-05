@@ -21,4 +21,4 @@ lc
 move
 bc
 fcap 0
-repete 4 [ av 10 ]
+repete 4 [ av 10*loop]
