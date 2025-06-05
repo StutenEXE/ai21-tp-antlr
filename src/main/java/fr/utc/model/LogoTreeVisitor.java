@@ -260,9 +260,9 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		if(b==0) {
 			for (int i=0; i<getValue(ctx.expr()); i++) {
 				this.loopMemory.add(i+1);
-				log.defaultLog(ctx);
-				log.appendLog("Tour n° ", String.valueOf(i));
-				visit(ctx.instruction());
+				for ( InstructionContext instuction : ctx.liste_instructions().instruction()){
+					visit(instuction);
+				}
 				this.loopMemory.pop();
 			}	
 		}
@@ -272,7 +272,6 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	@Override
 	public Integer visitLoop(LoopContext ctx) {
 		Integer value = this.loopMemory.getFirst();
-		log.appendLog("Value de Loopp : ", String.valueOf(value));
 		setValue(ctx, value);
 
 		return 0;
