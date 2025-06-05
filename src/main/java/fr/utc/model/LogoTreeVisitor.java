@@ -1,4 +1,6 @@
 package fr.utc.model;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -7,8 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import fr.utc.gui.Traceur;
 import fr.utc.parsing.LogoParser.AvContext;
 import fr.utc.parsing.LogoParser.FloatContext;
-import fr.utc.parsing.LogoParser.TdContext;
-import fr.utc.parsing.LogoParser.TgContext;
+import fr.utc.parsing.LogoParser.*;
 import javafx.beans.property.StringProperty;
 
 public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
@@ -46,7 +47,34 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		return value;
 	}
 
-	// Instructions de base
+	@Override
+	public Integer visitBc(BcContext ctx){
+		traceur.setCrayon(true);
+		log.defaultLog(ctx);
+		log.appendLog("Crayon baisser");
+		return 0;
+	}
+	
+	@Override
+	public Integer visitFpos(FposContext ctx){
+		Pair<Integer, List<Double>> bilan = evaluateList(ctx.expr());
+		if(bilan.a == 0 && bilan.b.size()==2) {
+			traceur.teleport(bilan.b.get(0), bilan.b.get(1));
+			log.defaultLog(ctx);
+			log.appendLog("Possition définit à : ", String.valueOf(bilan.b));
+			
+			return 0;
+		}
+		return 1;
+	}
+	
+	@Override
+	public Integer visitLc(LcContext ctx){
+		traceur.setCrayon(false);
+		log.defaultLog(ctx);
+		log.appendLog("Crayon Lever");
+		return 0;
+	}
 
 	@Override
 	public Integer visitTd(TdContext ctx) {
@@ -56,7 +84,18 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			log.defaultLog(ctx);
 			log.appendLog("Tourne de", String.valueOf(bilan.b), "a droite");
 		}
-		return 0;
+		return bilan.a;
+	}
+	
+	@Override
+	public Integer visitRe(ReContext ctx) {
+		Pair<Integer, Double> bilan = evaluate(ctx.expr());
+		if (bilan.a == 0) {
+			traceur.avance(-bilan.b);
+			log.defaultLog(ctx);
+			log.appendLog("Recule de ", String.valueOf(bilan.b));
+		}
+		return bilan.a;
 	}
 	
 	@Override
@@ -67,7 +106,29 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			log.defaultLog(ctx);
 			log.appendLog("Tourne de", String.valueOf(bilan.b), "a gauche");
 		}
-		return 0;
+		return bilan.a;
+	}
+	
+	@Override 
+	public Integer visitFcc(FccContext ctx) {
+		Pair<Integer, Double> bilan = evaluate(ctx.expr());
+		if (bilan.a == 0) {
+			traceur.setColor(bilan.b.intValue());
+			log.defaultLog(ctx);
+			log.appendLog("Couleur changer pour la n°", String.valueOf(bilan.b));
+		}
+		return bilan.a;
+	}
+	
+	@Override
+	public Integer visitFcap(FcapContext ctx) {
+		Pair<Integer, Double> bilan = evaluate(ctx.expr());
+		if (bilan.a == 0) {
+			log.defaultLog(ctx);
+			log.appendLog("Cap de la tortue fixé à : ", String.valueOf(bilan.b));
+			traceur.fixeCap(bilan.b);
+		}
+		return bilan.a;
 	}
 
 	@Override
@@ -106,6 +167,18 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		int b = visit(expr);
 		Double val = b == 0 ? getValue(expr) : Double.POSITIVE_INFINITY;
 		return new Pair<Integer, Double>(b, val);
+	}
+	
+	private Pair<Integer, List<Double>> evaluateList(List<ExprContext> expr) {
+		List<Double> values = new ArrayList<>();
+		int code = 0;
+		for(ExprContext e : expr) {
+			int b = visit(e);
+			Double val = b == 0 ? getValue(e) : Double.POSITIVE_INFINITY;
+			code +=b;
+			values.add(val);
+		}
+		return new Pair<>(code, values);
 	}
 
 }

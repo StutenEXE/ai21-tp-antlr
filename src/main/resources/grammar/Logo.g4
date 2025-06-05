@@ -19,6 +19,12 @@ instruction :
    'av' expr # av
  | 'td' expr # td
  | 'tg' expr # tg
+ | 're' expr # re
+ | 'lc' # lc
+ | 'bc' # bc
+ | 'fpos' '['expr expr']' # fpos
+ | 'fcc' expr # fcc
+ | 'fcap' expr #fcap
 ; 
 
 expr :
