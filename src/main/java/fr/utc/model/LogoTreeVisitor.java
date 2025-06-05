@@ -8,6 +8,7 @@ import fr.utc.gui.Traceur;
 import fr.utc.parsing.LogoParser.AvContext;
 import fr.utc.parsing.LogoParser.FloatContext;
 import fr.utc.parsing.LogoParser.TdContext;
+import fr.utc.parsing.LogoParser.TgContext;
 import javafx.beans.property.StringProperty;
 
 public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
@@ -53,7 +54,18 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		if (bilan.a == 0) {
 			traceur.td(bilan.b);
 			log.defaultLog(ctx);
-			log.appendLog("Tourne de", String.valueOf(bilan.b));
+			log.appendLog("Tourne de", String.valueOf(bilan.b), "a droite");
+		}
+		return 0;
+	}
+	
+	@Override
+	public Integer visitTg(TgContext ctx) {
+		Pair<Integer, Double> bilan = evaluate(ctx.expr());
+		if (bilan.a == 0) {
+			traceur.td(-bilan.b);
+			log.defaultLog(ctx);
+			log.appendLog("Tourne de", String.valueOf(bilan.b), "a gauche");
 		}
 		return 0;
 	}
