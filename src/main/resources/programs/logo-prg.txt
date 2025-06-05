@@ -1,7 +1,21 @@
-av 100
-td 90 
 av (100)
 td 90
-re 50
+lc
+fcc 1
+av 50
 tg 90
-av (100)
+bc 
+fcc 4
+av 100
+lc
+td 90
+av 25
+bc 
+re 75
+fcc 2
+fpos [10 10]
+fcc 5
+av 100
+fcap 180
+fcc 6
+av 250

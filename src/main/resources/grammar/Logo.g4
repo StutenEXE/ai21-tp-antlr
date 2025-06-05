@@ -27,8 +27,9 @@ instruction :
  | 'fcap' expr #fcap
 ; 
 
-expr :
-   FLOAT         # float
- | '(' expr ')'  # parenthese 
+expr:
+ expr ('*' | '/' ) expr #mult
+ | expr ('+' | '-' ) expr #sum
+ | FLOAT #float
+ | '(' expr ')' #parenthese
 ;
-

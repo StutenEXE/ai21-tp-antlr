@@ -66,7 +66,7 @@ public class Traceur {
 	}
 	
 	public void fixeCap(double r) {
-		angle = r;
+		angle = r+90;
 		setTeta();
 	}
 	

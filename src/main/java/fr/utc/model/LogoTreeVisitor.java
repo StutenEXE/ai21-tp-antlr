@@ -151,6 +151,55 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		setValue(ctx, Double.valueOf(floatText));
 		return 0;
 	}
+	
+	@Override
+	public Integer visitParenthese(ParentheseContext ctx) {
+		// Visite récursive de l'expression interne
+	    int b = visit(ctx.expr());
+	    if (b == 0) {
+	        Double val = getValue(ctx.expr());
+	        setValue(ctx, val);
+	    }
+	    return b;
+	}
+	
+	public Integer visitSum(SumContext ctx) {
+		Pair<Integer, Double> left, right;
+		left = evaluate(ctx.expr(0));
+		right = evaluate(ctx.expr(1));
+		if (left.a == 0 && right.a == 0) {
+			String sign = ctx.getChild(1).getText();
+			Double r = sign.equals("+") ? left.b + right.b :
+			left.b - right.b;
+			setValue(ctx, r);
+			return 0;
+		}
+		return left.a == 0 ? right.a : left.a;
+	}
+	
+	public Integer visitMult(MultContext ctx) {
+		Pair<Integer, Double> left, right;
+		left = evaluate(ctx.expr(0));
+		right = evaluate(ctx.expr(1));
+		if (left.a == 0 && right.a == 0) {
+			String sign = ctx.getChild(1).getText();
+			Double r = Double.POSITIVE_INFINITY;
+			if(sign.equals("*")) {
+				r = left.b * right.b;
+			}else {
+				if(right.b != 0) {
+					r = left.b / right.b;
+				}else {
+					return 1;
+				}
+			}
+			setValue(ctx, r);
+			return 0;
+		}
+		return left.a == 0 ? right.a : left.a;
+	}
+	
+	
 
 	/**
 	 * Visite le noeud expression
@@ -176,7 +225,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			int b = visit(e);
 			Double val = b == 0 ? getValue(e) : Double.POSITIVE_INFINITY;
 			code +=b;
-			values.add(val);
+			values.add(val);	
 		}
 		return new Pair<>(code, values);
 	}
