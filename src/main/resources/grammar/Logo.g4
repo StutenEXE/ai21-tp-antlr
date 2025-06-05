@@ -24,12 +24,17 @@ instruction :
  | 'bc' # bc
  | 'fpos' '['expr expr']' # fpos
  | 'fcc' expr # fcc
- | 'fcap' expr #fcap
+ | 'fcap' expr #fcap 
+ | 'store' # store
+ | 'move' # move
 ; 
 
 expr:
- expr ('*' | '/' ) expr #mult
- | expr ('+' | '-' ) expr #sum
+ expr ('*' | '/' ) expr # mult
+ | expr ('+' | '-' ) expr # sum
  | FLOAT #float
  | '(' expr ')' #parenthese
+ | 'hasard' '(' expr ')' # hasard
+ | 'cos' '(' expr ')' # cos
+ | 'sin' '(' expr ')' # sin
 ;

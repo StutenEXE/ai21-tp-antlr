@@ -1,8 +1,8 @@
-av (100)
+av 100 - (10 + 20)
 td 90
 lc
 fcc 1
-av 50
+av (50*10/20)
 tg 90
 bc 
 fcc 4
@@ -13,9 +13,14 @@ av 25
 bc 
 re 75
 fcc 2
+store
 fpos [10 10]
 fcc 5
 av 100
 fcap 180
 fcc 6
 av 250
+td hasard(100)
+fcc 1
+av 100 * cos(60)
+move

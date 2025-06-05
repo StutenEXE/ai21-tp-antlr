@@ -142,6 +142,22 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		}
 		return bilan.a;
 	}
+	
+	@Override
+	public Integer visitStore(StoreContext ctx) {
+		traceur.store();
+		log.defaultLog(ctx);
+		log.appendLog("Position sauvegardé");
+		return 0;
+	}
+	
+	@Override
+	public Integer visitMove(MoveContext ctx) {
+		traceur.move();
+		log.defaultLog(ctx);
+		log.appendLog("Position sauvegardé");
+		return 0;
+	}
 
 	// Expressions
 
@@ -163,6 +179,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	    return b;
 	}
 	
+	@Override
 	public Integer visitSum(SumContext ctx) {
 		Pair<Integer, Double> left, right;
 		left = evaluate(ctx.expr(0));
@@ -177,6 +194,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		return left.a == 0 ? right.a : left.a;
 	}
 	
+	@Override
 	public Integer visitMult(MultContext ctx) {
 		Pair<Integer, Double> left, right;
 		left = evaluate(ctx.expr(0));
@@ -199,6 +217,38 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		return left.a == 0 ? right.a : left.a;
 	}
 	
+	@Override
+	public Integer visitHasard(HasardContext ctx) {
+		int b = visit(ctx.expr());
+	    if (b == 0) {
+	        Double max = getValue(ctx.expr());
+	        double result = Math.random() * max;
+	        setValue(ctx, result);
+	    }
+	    return b;
+	}
+	
+	@Override
+	public Integer visitCos(CosContext ctx) {
+		int b = visit(ctx.expr());
+	    if (b == 0) {
+	        Double value = getValue(ctx.expr());
+	        double result = Math.cos(value);
+	        setValue(ctx, result);
+	    }
+	    return b;
+	}
+	
+	@Override
+	public Integer visitSin(SinContext ctx) {
+		int b = visit(ctx.expr());
+	    if (b == 0) {
+	        Double value = getValue(ctx.expr());
+	        double result = Math.sin(value);
+	        setValue(ctx, result);
+	    }
+	    return b;
+	}
 	
 
 	/**

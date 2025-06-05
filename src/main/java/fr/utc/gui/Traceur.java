@@ -6,6 +6,8 @@
  */
 package fr.utc.gui;
 
+import java.util.ArrayDeque;
+import org.antlr.v4.runtime.misc.Pair;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
@@ -18,11 +20,13 @@ public class Traceur {
 	private double teta;
 	ObjectProperty<GraphLineParameter> line;
 	boolean crayon;
+	private ArrayDeque<Pair<Double, Double>> position; // memoire de la position LIFO
 
 	public Traceur() {
 		this.crayon = true;
 		setTeta();
 		line = new SimpleObjectProperty<GraphLineParameter>();
+		this.position = new ArrayDeque<Pair<Double, Double>>();
 	}
 
 	public ObjectProperty<GraphLineParameter> lineProperty() {
@@ -91,6 +95,15 @@ public class Traceur {
 				couleur = Color.PURPLE;
 				break;
 		}
+	}
+	
+	public void store() {
+		this.position.add(new Pair<Double, Double>(posx,posy));
+	}
+	
+	public void move() {
+		Pair<Double, Double> lastSavPos = this.position.pop();
+		this.teleport(lastSavPos.a, lastSavPos.b);
 	}
 
 }
