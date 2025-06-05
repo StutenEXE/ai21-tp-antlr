@@ -1,5 +1,7 @@
 package fr.utc.model;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.antlr.v4.runtime.misc.Pair;
@@ -12,17 +14,16 @@ import fr.utc.parsing.LogoParser.FloatContext;
 import fr.utc.parsing.LogoParser;
 import fr.utc.parsing.LogoParser.*;
 import javafx.beans.property.StringProperty;
-import java.util.ArrayDeque;
 
 public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	fr.utc.gui.Traceur traceur;
 	Log log;
-	private ArrayDeque<Integer> loopMemory; // Memoir Lifo de mes loops
+	private Deque<Integer> loopMemory; // Memoir FIFO de mes loops
 
 	public LogoTreeVisitor() {
 		traceur = new Traceur();
 		log = new Log();
-		this.loopMemory = new ArrayDeque<Integer>();
+		this.loopMemory = new LinkedList<Integer>();
 	}
 
 	public StringProperty logProperty() {
@@ -159,7 +160,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	public Integer visitMove(MoveContext ctx) {
 		traceur.move();
 		log.defaultLog(ctx);
-		log.appendLog("Position sauvegardé");
+		log.appendLog("Changement pour l'ancienne position sauvegardé");
 		return 0;
 	}
 
@@ -259,7 +260,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		int b = visit(ctx.expr());
 		if(b==0) {
 			for (int i=0; i<getValue(ctx.expr()); i++) {
-				this.loopMemory.add(i+1);
+				this.loopMemory.push(i+1);
 				for ( InstructionContext instuction : ctx.liste_instructions().instruction()){
 					visit(instuction);
 				}
@@ -271,7 +272,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	
 	@Override
 	public Integer visitLoop(LoopContext ctx) {
-		Integer value = this.loopMemory.getFirst();
+		Integer value = this.loopMemory.element();
 		setValue(ctx, value);
 
 		return 0;
