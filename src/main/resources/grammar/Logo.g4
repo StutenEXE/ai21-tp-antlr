@@ -56,5 +56,5 @@ expr:
  | 'loop' # loop
  | VAR # variables
  | expr ('<' | '>') expr # comparaison
- | NAME expr* # executeFonction
+ | NAME '(' expr* ')' # executeFonction
 ;

@@ -292,7 +292,8 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 				return b;
 			}
 		}
-		return 0;
+		log.appendLog("Erreur, procedure inconnue : ", ctx.NAME().getText());
+		return 1;
 	}
 	
 	
@@ -473,7 +474,8 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 				return b;
 			}
 		}
-		return 0;
+		log.appendLog("Erreur, fonction inconnue : ", ctx.NAME().getText());
+		return 1;
 	}
 	
 	/**
