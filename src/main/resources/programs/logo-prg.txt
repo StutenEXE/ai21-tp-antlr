@@ -1,1 +1,29 @@
-pour test av 100 rends 10 av 100
+pour div2 :a :b
+	rends (:a + :b) / 2
+fin
+pour triangle :xA :xB :xC :yA :yB :yC :n
+	si :n > 0 [
+		fcc :n
+		donne "xE div2 ( :xA :xB )
+		donne "yE div2 ( :yA :yB )
+		
+		donne "xF div2 ( :xB :xC )
+		donne "yF div2 ( :yB :yC )
+		
+		donne "xG div2 ( :xA :xC )
+		donne "yG div2 ( :yA :yC )
+
+		lc
+		fpos [:xE :yE]
+		bc
+		fpos [:xF :yF]
+		fpos [:xG :yG]
+		fpos [:xE :yE]
+		donne "n :n - 1
+		
+		triangle (  :xA :yA :xE :yE :xG :yG :n )
+		triangle (  :xE :yE :xB :yB :xF :yF :n )
+		triangle (  :xG :yG :xF :yF :xC :yC :n )
+	]
+fin
+triangle ( 10 630 630 630 320 93 2 )

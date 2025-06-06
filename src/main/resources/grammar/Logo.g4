@@ -8,6 +8,7 @@ COMMENT1 : '//' .*? [\r\n]+ -> skip;
 COMMENT2 : '/*' .*? '*/' -> skip;
 VAR : ':'[A-Za-z][A-Za-z0-9]*;
 NAME : [A-Za-z][A-Za-z0-9]*;
+COMPARATOR : ('<' | '>');
 
 procedure: 
  'pour' NAME VAR* liste_instructions 'fin' # declarationProcedure
@@ -37,12 +38,12 @@ instruction :
  | 'donne' '"'NAME expr # affectation
  | 'si' predicat '[' liste_instructions ']' ('[' liste_instructions ']')? # if
  | 'tantque' predicat '[' liste_instructions ']' # tantque
- | NAME expr* # executeProcedure
+ | NAME '(' expr* ')' # executeProcedure
  | 'rends' expr # retourFonction
 ; 
 
 predicat : 
- expr ('<' | '>') expr #booleanComparaison
+ expr COMPARATOR expr #booleanComparaison
 ;
 
 expr:
@@ -55,6 +56,6 @@ expr:
  | 'sin' '(' expr ')' # sin
  | 'loop' # loop
  | VAR # variables
- | expr ('<' | '>') expr # comparaison
+ | expr COMPARATOR expr # comparaison
  | NAME '(' expr* ')' # executeFonction
 ;
