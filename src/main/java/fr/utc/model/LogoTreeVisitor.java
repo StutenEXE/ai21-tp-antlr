@@ -10,10 +10,9 @@ import java.util.Map;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import fr.utc.gui.Traceur;
-import fr.utc.parsing.LogoParser.AvContext;
-import fr.utc.parsing.LogoParser.FloatContext;
 import fr.utc.parsing.LogoParser;
 import fr.utc.parsing.LogoParser.*;
 import javafx.beans.property.StringProperty;
@@ -23,6 +22,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	Log log;
 	private Deque<Integer> loopMemory; // Memoir LIFO de mes loops
 	private Deque<Map<String, Double>> tableSymbole;
+	private Map<String, Pair<Liste_instructionsContext, Map<String, Double>>> procedure;
 
 	public LogoTreeVisitor() {
 		traceur = new Traceur();
@@ -30,6 +30,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		this.loopMemory = new ArrayDeque<Integer>();  // Memoire des loop LIFO
 		this.tableSymbole = new ArrayDeque<Map<String,Double>>(); // table des symboles LIFO
 		this.tableSymbole.push(new HashMap<String, Double>()); // table des symboles du bloc principal
+		this.procedure = new HashMap<String, Pair<Liste_instructionsContext, Map<String, Double>>>();
 	}
 
 	public StringProperty logProperty() {
@@ -177,8 +178,8 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	public Integer visitAffectation(AffectationContext ctx) {
 		Pair<Integer, Double> b = evaluate(ctx.expr());
 		if (b.a==0) {
-			log.appendLog("Symbol : ", ctx.VAR().getText(), " Définit à : ", String.valueOf(b.b));
-			this.tableSymbole.peek().put(ctx.VAR().getText(), b.b);
+			log.appendLog("Symbol : ", ctx.NAME().getText(), " Définit à : ", String.valueOf(b.b));
+			this.tableSymbole.peek().put(ctx.NAME().getText(), b.b);
 		}
 		return b.a;
 	}
@@ -237,6 +238,48 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			this.tableSymbole.pop();
 		}
 		return comparaison;
+	}
+		
+	@Override
+	public Integer visitDeclarationProcedure(DeclarationProcedureContext ctx) {
+		String procedureName = ctx.NAME().getText();
+		Map<String, Double> symboles = new HashMap<String, Double>();
+		for (TerminalNode s : ctx.VAR()) {
+			symboles.put(s.getText(), null);
+		}
+		this.procedure.put(procedureName, new Pair<Liste_instructionsContext, Map<String, Double>>(ctx.liste_instructions(), symboles));
+		this.log.defaultLog(ctx);
+		this.log.appendLog("Définition de la procédure : ", procedureName);
+		return 0;
+	}
+	
+	@Override
+	public Integer visitExecuteProcedure(ExecuteProcedureContext ctx) {					
+		if(this.procedure.containsKey(ctx.NAME().getText())) {
+			Pair<Liste_instructionsContext, Map<String, Double>> proc =  this.procedure.get(ctx.NAME().getText());
+			if(ctx.expr().size() != proc.b.size()) {
+				log.appendLog("Erreur, nombre de paramètre attendu : ", String.valueOf(proc.b.size()), " Mais reçu : ", String.valueOf(ctx.expr().size()));
+				return 1;
+			}else {
+				int i=0;
+				// Définition des variables de la table des symboles
+				for(String keys : proc.b.keySet()) {
+					int b=visit(ctx.expr(i));
+					if(b==0) {
+						proc.b.put(keys, getValue(ctx.expr(i)));	
+					}else {
+						return 1;
+					}
+					i++;
+				}
+				// Lancement de l'exécution:
+				this.tableSymbole.push(proc.b);
+				visit(proc.a);
+				this.tableSymbole.pop();
+				return 0;
+			}
+		}
+		return 0;
 	}
 	
 	
@@ -376,7 +419,6 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		}
 		return comparaison.a;
 	}
-
 	/**
 	 * Visite le noeud expression
 	 * S'il n'y a pas d'erreur (la valeur de retour de la visite vaut 0)

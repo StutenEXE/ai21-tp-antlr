@@ -6,10 +6,14 @@ FLOAT : ('-')?[0-9][0-9]*('.'[0-9]+)? ;
 WS : [ \t\r\n]+ -> skip ;
 COMMENT1 : '//' .*? [\r\n]+ -> skip;
 COMMENT2 : '/*' .*? '*/' -> skip;
-VAR : [A-Za-z][A-Za-z0-9]*;
+VAR : ':'[A-Za-z][A-Za-z0-9]*;
+NAME : [A-Za-z][A-Za-z0-9]*;
 
+procedure: 
+ 'pour' NAME VAR* liste_instructions 'fin' # declarationProcedure
+;
 programme :
- liste_instructions  
+ procedure* liste_instructions  
 ;
 
 liste_instructions :   
@@ -29,9 +33,10 @@ instruction :
  | 'store' # store
  | 'move' # move
  | 'repete' expr '[' liste_instructions ']' # repete
- | 'donne' '"'VAR expr # affectation
+ | 'donne' '"'NAME expr # affectation
  | 'si' predicat '[' liste_instructions ']' ('[' liste_instructions ']')? # if
  | 'tantque' predicat '[' liste_instructions ']' # tantque
+ | NAME (expr)+ # executeProcedure
 ; 
 
 predicat : 
@@ -47,6 +52,6 @@ expr:
  | 'cos' '(' expr ')' # cos
  | 'sin' '(' expr ')' # sin
  | 'loop' # loop
- | ':'VAR # variables
+ | VAR # variables
  | expr ('<' | '>') expr # comparaison
 ;
