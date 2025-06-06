@@ -317,6 +317,25 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		log.appendLog("Symbol \"", ctx.VAR().getText(), "\" est introuvable");
 		return 1;
 	}
+	
+	@Override
+	public Integer visitComparaison(ComparaisonContext ctx) {
+		Pair<Integer, Double> left, right;
+		left = evaluate(ctx.expr(0));
+		right = evaluate(ctx.expr(1));
+		if (left.a == 0 && right.a == 0) {
+			String sign = ctx.getChild(1).getText();
+			log.defaultLog(ctx);
+			if(sign.equals("<")) {
+				setValue(ctx, left.b < right.b ? 1: 0);
+				log.appendLog("Comparaison de  ", String.valueOf(left.b), " < ", String.valueOf(right.b));
+			}else {
+				setValue(ctx, left.b > right.b ? 1: 0);
+				log.appendLog("Comparaison de  ", String.valueOf(left.b), " > ", String.valueOf(right.b));
+			}
+		}
+		return left.a == 0 ? right.a : left.a;
+	}
 
 	/**
 	 * Visite le noeud expression

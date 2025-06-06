@@ -42,4 +42,5 @@ expr:
  | 'sin' '(' expr ')' # sin
  | 'loop' # loop
  | ':'VAR # variables
+ | expr ('<' | '>') expr # comparaison
 ;
