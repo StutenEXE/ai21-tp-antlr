@@ -17,6 +17,7 @@ move
 bc
 repete 4 [ 
 fcc loop
-av :a*loop
+av :a*loop * (loop>2)
 donne "a 30
 ]
+si (:a*2 ) > (50+100) [fpos[1000 200]] [fpos[0 0]]

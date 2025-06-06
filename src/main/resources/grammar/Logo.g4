@@ -30,7 +30,13 @@ instruction :
  | 'move' # move
  | 'repete' expr '[' liste_instructions ']' # repete
  | 'donne' '"'VAR expr # affectation
+ | 'si' boolean '[' liste_instructions ']' '[' liste_instructions ']' # if
+ | 'tantque' boolean '[' liste_instructions ']' # tantque
 ; 
+
+boolean : 
+ expr ('<' | '>') expr #booleanComparaison
+;
 
 expr:
  expr ('*' | '/' ) expr # mult

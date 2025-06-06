@@ -183,6 +183,33 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		return b.a;
 	}
 	
+	@Override
+	public Integer visitIf(IfContext ctx) {
+		int comparaison = visit(ctx.boolean_());
+		if(comparaison == 0) {
+			// Si vrai faire 1er instruction
+			if(getValue(ctx.boolean_()) == 1) {
+				visit(ctx.liste_instructions(0));
+			//SInon le 2
+			}else {
+				visit(ctx.liste_instructions(1));
+			}
+		}
+		return comparaison;
+	}
+
+	
+	@Override
+	public Integer visitBooleanComparaison(BooleanComparaisonContext ctx) {
+		Pair<Integer, Integer> comparaison = evaluateComparaison(ctx.expr(0), ctx.expr(1), ctx.getChild(1).getText());
+		if(comparaison.a == 0) {
+			log.defaultLog(ctx);
+			setValue(ctx, comparaison.b);
+		}
+		return comparaison.a;
+	}
+	
+	
 	// Expressions
 
 	@Override
@@ -194,7 +221,6 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	
 	@Override
 	public Integer visitParenthese(ParentheseContext ctx) {
-		// Visite récursive de l'expression interne
 	    int b = visit(ctx.expr());
 	    if (b == 0) {
 	        Double val = getValue(ctx.expr());
@@ -320,21 +346,12 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	
 	@Override
 	public Integer visitComparaison(ComparaisonContext ctx) {
-		Pair<Integer, Double> left, right;
-		left = evaluate(ctx.expr(0));
-		right = evaluate(ctx.expr(1));
-		if (left.a == 0 && right.a == 0) {
-			String sign = ctx.getChild(1).getText();
+		Pair<Integer, Integer> comparaison = evaluateComparaison(ctx.expr(0), ctx.expr(1), ctx.getChild(1).getText());
+		if(comparaison.a == 0) {
 			log.defaultLog(ctx);
-			if(sign.equals("<")) {
-				setValue(ctx, left.b < right.b ? 1: 0);
-				log.appendLog("Comparaison de  ", String.valueOf(left.b), " < ", String.valueOf(right.b));
-			}else {
-				setValue(ctx, left.b > right.b ? 1: 0);
-				log.appendLog("Comparaison de  ", String.valueOf(left.b), " > ", String.valueOf(right.b));
-			}
+			setValue(ctx, comparaison.b);
 		}
-		return left.a == 0 ? right.a : left.a;
+		return comparaison.a;
 	}
 
 	/**
@@ -364,6 +381,23 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			values.add(val);	
 		}
 		return new Pair<>(code, values);
+	}
+	
+	private Pair<Integer, Integer> evaluateComparaison(ExprContext left, ExprContext right, String sign){
+		int b = visit(left);
+		Double valL = b == 0 ? getValue(left) : Double.POSITIVE_INFINITY;
+		b += visit(right);
+		Double valR = b == 0 ? getValue(right) : Double.POSITIVE_INFINITY;
+		if (b==0) {
+			if(sign.equals("<")) {
+				log.appendLog("Comparaison de  ", String.valueOf(valL), " < ", String.valueOf(valR));
+				return new Pair<Integer, Integer>(b, (valL < valR ? 1: 0));
+			}else {
+				log.appendLog("Comparaison de  ", String.valueOf(valL), " > ", String.valueOf(valR));
+				return new Pair<Integer, Integer>(b, (valL > valR ? 1: 0));
+			}
+		}
+		return new Pair<Integer, Integer>(b, Integer.MAX_VALUE);
 	}
 
 }
