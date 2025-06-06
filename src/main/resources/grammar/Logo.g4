@@ -12,6 +12,7 @@ NAME : [A-Za-z][A-Za-z0-9]*;
 procedure: 
  'pour' NAME VAR* liste_instructions 'fin' # declarationProcedure
 ;
+
 programme :
  procedure* liste_instructions  
 ;
@@ -36,7 +37,8 @@ instruction :
  | 'donne' '"'NAME expr # affectation
  | 'si' predicat '[' liste_instructions ']' ('[' liste_instructions ']')? # if
  | 'tantque' predicat '[' liste_instructions ']' # tantque
- | NAME (expr)+ # executeProcedure
+ | NAME expr* # executeProcedure
+ | 'rends' expr # retourFonction
 ; 
 
 predicat : 
@@ -54,4 +56,5 @@ expr:
  | 'loop' # loop
  | VAR # variables
  | expr ('<' | '>') expr # comparaison
+ | NAME expr* # executeFonction
 ;

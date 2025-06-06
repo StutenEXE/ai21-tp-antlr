@@ -3,7 +3,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +21,12 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	Log log;
 	private Deque<Integer> loopMemory; // Memoir LIFO de mes loops
 	private Deque<Map<String, Double>> tableSymbole;
+	// on utilise 2 liste pour autorisé la déclaration d'une fonction ave cle même nom que une procédure
 	private Map<String, Pair<Liste_instructionsContext, Map<String, Double>>> procedure;
-
+	private Map<String, Pair<Liste_instructionsContext, Map<String, Double>>> fonction;
+	// Queue de retour des fonctions
+	private Deque<Double> retour;
+	
 	public LogoTreeVisitor() {
 		traceur = new Traceur();
 		log = new Log();
@@ -31,6 +34,8 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		this.tableSymbole = new ArrayDeque<Map<String,Double>>(); // table des symboles LIFO
 		this.tableSymbole.push(new HashMap<String, Double>()); // table des symboles du bloc principal
 		this.procedure = new HashMap<String, Pair<Liste_instructionsContext, Map<String, Double>>>();
+		this.fonction = new HashMap<String, Pair<Liste_instructionsContext, Map<String, Double>>>();
+		this.retour = new ArrayDeque<Double>();
 	}
 
 	public StringProperty logProperty() {
@@ -247,9 +252,15 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		for (TerminalNode s : ctx.VAR()) {
 			symboles.put(s.getText(), null);
 		}
-		this.procedure.put(procedureName, new Pair<Liste_instructionsContext, Map<String, Double>>(ctx.liste_instructions(), symboles));
+		// Fonction ou Procédure ? 
 		this.log.defaultLog(ctx);
-		this.log.appendLog("Définition de la procédure : ", procedureName);
+		if(this.isFonction(ctx.liste_instructions())) {
+			this.fonction.put(procedureName, new Pair<Liste_instructionsContext, Map<String, Double>>(ctx.liste_instructions(), symboles));
+			this.log.appendLog("Définition de la fonction : ", procedureName);
+		}else {
+			this.procedure.put(procedureName, new Pair<Liste_instructionsContext, Map<String, Double>>(ctx.liste_instructions(), symboles));
+			this.log.appendLog("Définition de la procédure : ", procedureName);
+		}
 		return 0;
 	}
 	
@@ -274,15 +285,25 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 				}
 				// Lancement de l'exécution:
 				this.tableSymbole.push(proc.b);
-				visit(proc.a);
+				log.defaultLog(ctx);
+				log.appendLog("Execution de la procedure ", ctx.NAME().getText());
+				int b = visit(proc.a);
 				this.tableSymbole.pop();
-				return 0;
+				return b;
 			}
 		}
 		return 0;
 	}
 	
 	
+	@Override
+	public Integer visitRetourFonction(RetourFonctionContext ctx) {
+		int b = visit(ctx.expr());
+		if(b==0) {
+			this.retour.push(getValue(ctx.expr()));
+		}
+		return b;
+	}
 	
 	// Boolean
 	
@@ -419,6 +440,42 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 		}
 		return comparaison.a;
 	}
+	
+	@Override
+	public Integer visitExecuteFonction(ExecuteFonctionContext ctx) {
+		if(this.fonction.containsKey(ctx.NAME().getText())) {
+			Pair<Liste_instructionsContext, Map<String, Double>> proc =  this.fonction.get(ctx.NAME().getText());
+			if(ctx.expr().size() != proc.b.size()) {
+				log.appendLog("Erreur, nombre de paramètre attendu : ", String.valueOf(proc.b.size()), " Mais reçu : ", String.valueOf(ctx.expr().size()));
+				return 1;
+			}else {
+				int i=0;
+				// Définition des variables de la table des symboles
+				for(String keys : proc.b.keySet()) {
+					int b=visit(ctx.expr(i));
+					if(b==0) {
+						proc.b.put(keys, getValue(ctx.expr(i)));	
+					}else {
+						return 1;
+					}
+					i++;
+				}
+				// Lancement de l'exécution:
+				this.tableSymbole.push(proc.b);
+				log.defaultLog(ctx);
+				log.appendLog("Execution de la Fonction ", ctx.NAME().getText());
+				int b = visit(proc.a);
+				this.tableSymbole.pop();
+				if(b==0) {
+					double retour = this.retour.pop();
+					setValue(ctx, retour);
+				}
+				return b;
+			}
+		}
+		return 0;
+	}
+	
 	/**
 	 * Visite le noeud expression
 	 * S'il n'y a pas d'erreur (la valeur de retour de la visite vaut 0)
@@ -463,6 +520,16 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			}
 		}
 		return new Pair<Integer, Integer>(b, Integer.MAX_VALUE);
+	}
+	
+	private boolean isFonction(Liste_instructionsContext liste) {
+		for(InstructionContext list : liste.instruction()) {
+			if(list instanceof RetourFonctionContext) {
+				log.appendLog("FOnction");
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

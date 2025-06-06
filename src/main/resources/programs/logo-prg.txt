@@ -1,15 +1,1 @@
-fcc 0
-// Fixe la couleur du crayon (5 = violet)
-donne "x (100)
-donne "y 500
-lc
-fpos [(:x - 100) :y]
-bc
-fcc 1
-tantque :x < 1500
-[
-	donne "y sin(:x) * 100
-	fpos [(:x - 100) :y]
-	donne "x :x + 10 //Pas de 0.5
-bc
-]
+pour test av 100 rends 10 av 100
