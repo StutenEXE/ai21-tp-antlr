@@ -185,19 +185,63 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	
 	@Override
 	public Integer visitIf(IfContext ctx) {
-		int comparaison = visit(ctx.boolean_());
+		int comparaison = visit(ctx.predicat());
 		if(comparaison == 0) {
 			// Si vrai faire 1er instruction
-			if(getValue(ctx.boolean_()) == 1) {
+			if(getValue(ctx.predicat()) == 1) {
 				visit(ctx.liste_instructions(0));
 			//SInon le 2
 			}else {
-				visit(ctx.liste_instructions(1));
+				// Si il existe
+				if(ctx.liste_instructions().size() == 2) {
+					visit(ctx.liste_instructions(1));	
+				}
 			}
 		}
 		return comparaison;
 	}
-
+	
+	@Override
+	public Integer visitRepete(RepeteContext ctx) {
+		int b = visit(ctx.expr());
+		if(b==0) {
+			// Table des symboles du block
+			this.tableSymbole.push(new HashMap<String, Double>());
+			for (int i=0; i<getValue(ctx.expr()); i++) {
+				// Ajout dans la pile de la valeur de la boucles
+				this.loopMemory.push(i+1);
+				visit(ctx.liste_instructions());
+				// Suppression de la valeur obscolète de la boucle
+				this.loopMemory.pop();
+			}	
+			// On dépile les symbole
+			this.tableSymbole.pop();
+		}
+		return b;
+	}
+	
+	@Override
+	public Integer visitTantque(TantqueContext ctx) {
+		int comparaison = visit(ctx.predicat());
+		if(comparaison == 0) {
+			// On balance la boucle de tant que;
+			this.tableSymbole.push(new HashMap<String, Double>());
+			int i =1;
+			while(getValue(ctx.predicat()) == 1) {
+				this.loopMemory.push(i);
+				visit(ctx.liste_instructions());
+				this.loopMemory.pop();
+				i++;
+				visit(ctx.predicat());
+			}
+			this.tableSymbole.pop();
+		}
+		return comparaison;
+	}
+	
+	
+	
+	// Boolean
 	
 	@Override
 	public Integer visitBooleanComparaison(BooleanComparaisonContext ctx) {
@@ -298,27 +342,6 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	        setValue(ctx, result);
 	    }
 	    return b;
-	}
-	
-	@Override
-	public Integer visitRepete(RepeteContext ctx) {
-		int b = visit(ctx.expr());
-		if(b==0) {
-			// Table des symboles du block
-			this.tableSymbole.push(new HashMap<String, Double>());
-			for (int i=0; i<getValue(ctx.expr()); i++) {
-				// Ajout dans la pile de la valeur de la boucles
-				this.loopMemory.push(i+1);
-				for ( InstructionContext instuction : ctx.liste_instructions().instruction()){
-					visit(instuction);
-				}
-				// Suppression de la valeur obscolète de la boucle
-				this.loopMemory.pop();
-			}	
-			// On dépile les symbole
-			this.tableSymbole.pop();
-		}
-		return b;
 	}
 	
 	@Override

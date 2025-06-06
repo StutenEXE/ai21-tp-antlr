@@ -2,7 +2,7 @@ grammar Logo ;
 
 @header {package fr.utc.parsing;}
 
-FLOAT : [0-9][0-9]*('.'[0-9]+)? ;
+FLOAT : ('-')?[0-9][0-9]*('.'[0-9]+)? ;
 WS : [ \t\r\n]+ -> skip ;
 COMMENT1 : '//' .*? [\r\n]+ -> skip;
 COMMENT2 : '/*' .*? '*/' -> skip;
@@ -30,11 +30,11 @@ instruction :
  | 'move' # move
  | 'repete' expr '[' liste_instructions ']' # repete
  | 'donne' '"'VAR expr # affectation
- | 'si' boolean '[' liste_instructions ']' '[' liste_instructions ']' # if
- | 'tantque' boolean '[' liste_instructions ']' # tantque
+ | 'si' predicat '[' liste_instructions ']' ('[' liste_instructions ']')? # if
+ | 'tantque' predicat '[' liste_instructions ']' # tantque
 ; 
 
-boolean : 
+predicat : 
  expr ('<' | '>') expr #booleanComparaison
 ;
 

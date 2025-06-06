@@ -1,23 +1,15 @@
-store
-av 100 - (10 + 20)
-donne "a 100
-td 90
-fcc 2
-av 100
-fcc 2
-store
-fpos [10 10]
 fcc 0
-fcap hasard(100)
-av :a * cos(60)
-fcc 3
-move
+// Fixe la couleur du crayon (5 = violet)
+donne "x (100)
+donne "y 500
 lc
-move
+fpos [(:x - 100) :y]
 bc
-repete 4 [ 
-fcc loop
-av :a*loop * (loop>2)
-donne "a 30
+fcc 1
+tantque :x < 1500
+[
+	donne "y sin(:x) * 100
+	fpos [(:x - 100) :y]
+	donne "x :x + 10 //Pas de 0.5
+bc
 ]
-si (:a*2 ) > (50+100) [fpos[1000 200]] [fpos[0 0]]

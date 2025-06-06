@@ -1,0 +1,11 @@
+lc
+donne "x 0
+donne "y 0
+fpos [:x :y]
+bc
+fcc 1
+tantque :x < 200 [
+	donne "y sin( :x ) * 100 + 150
+	fpos [:x*6 :y]
+	donne "x :x + 0.2
+]
