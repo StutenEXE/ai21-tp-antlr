@@ -1,5 +1,6 @@
 store
 av 100 - (10 + 20)
+donne "a 100
 td 90
 fcc 2
 av 100
@@ -8,7 +9,7 @@ store
 fpos [10 10]
 fcc 0
 fcap hasard(100)
-av 100 * cos(60)
+av :a * cos(60)
 fcc 3
 move
 lc
@@ -16,5 +17,6 @@ move
 bc
 repete 4 [ 
 fcc loop
-av 30*loop
+av :a*loop
+donne "a 30
 ]

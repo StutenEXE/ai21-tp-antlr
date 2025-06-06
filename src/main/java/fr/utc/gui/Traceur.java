@@ -6,8 +6,8 @@
  */
 package fr.utc.gui;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import org.antlr.v4.runtime.misc.Pair;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -27,7 +27,7 @@ public class Traceur {
 		this.crayon = true;
 		setTeta();
 		line = new SimpleObjectProperty<GraphLineParameter>();
-		this.position = new LinkedList<Pair<Double, Double>>();
+		this.position = new ArrayDeque<Pair<Double, Double>>();
 	}
 
 	public ObjectProperty<GraphLineParameter> lineProperty() {
@@ -102,11 +102,13 @@ public class Traceur {
 		this.position.push(new Pair<Double, Double>(posx,posy));
 	}
 	
-	public void move() {
+	public boolean move() {
 		if(!this.position.isEmpty()) {
 			Pair<Double, Double> lastSavPos = this.position.pop();
 			this.teleport(lastSavPos.a, lastSavPos.b);	
+			return true;
 		}
+		return false;
 	}
 
 }

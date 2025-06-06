@@ -6,6 +6,7 @@ FLOAT : [0-9][0-9]*('.'[0-9]+)? ;
 WS : [ \t\r\n]+ -> skip ;
 COMMENT1 : '//' .*? [\r\n]+ -> skip;
 COMMENT2 : '/*' .*? '*/' -> skip;
+VAR : [A-Za-z][A-Za-z0-9]*;
 
 programme :
  liste_instructions  
@@ -28,6 +29,7 @@ instruction :
  | 'store' # store
  | 'move' # move
  | 'repete' expr '[' liste_instructions ']' # repete
+ | 'donne' '"'VAR expr # affectation
 ; 
 
 expr:
@@ -39,4 +41,5 @@ expr:
  | 'cos' '(' expr ')' # cos
  | 'sin' '(' expr ')' # sin
  | 'loop' # loop
+ | ':'VAR # variables
 ;

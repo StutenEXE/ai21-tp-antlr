@@ -1,8 +1,11 @@
 package fr.utc.model;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -18,12 +21,15 @@ import javafx.beans.property.StringProperty;
 public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	fr.utc.gui.Traceur traceur;
 	Log log;
-	private Deque<Integer> loopMemory; // Memoir FIFO de mes loops
+	private Deque<Integer> loopMemory; // Memoir LIFO de mes loops
+	private Deque<Map<String, Double>> tableSymbole;
 
 	public LogoTreeVisitor() {
 		traceur = new Traceur();
 		log = new Log();
-		this.loopMemory = new LinkedList<Integer>();
+		this.loopMemory = new ArrayDeque<Integer>();  // Memoire des loop LIFO
+		this.tableSymbole = new ArrayDeque<Map<String,Double>>(); // table des symboles LIFO
+		this.tableSymbole.push(new HashMap<String, Double>()); // table des symboles du bloc principal
 	}
 
 	public StringProperty logProperty() {
@@ -158,12 +164,25 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	
 	@Override
 	public Integer visitMove(MoveContext ctx) {
-		traceur.move();
 		log.defaultLog(ctx);
-		log.appendLog("Changement pour l'ancienne position sauvegardé");
+		if(!traceur.move()) {
+			log.appendLog("Impossible de changer de position, aucune position sauvegardé");
+		}else {
+			log.appendLog("Changement pour l'ancienne position sauvegardé");	
+		}
 		return 0;
 	}
-
+	
+	@Override
+	public Integer visitAffectation(AffectationContext ctx) {
+		Pair<Integer, Double> b = evaluate(ctx.expr());
+		if (b.a==0) {
+			log.appendLog("Symbol : ", ctx.VAR().getText(), " Définit à : ", String.valueOf(b.b));
+			this.tableSymbole.peek().put(ctx.VAR().getText(), b.b);
+		}
+		return b.a;
+	}
+	
 	// Expressions
 
 	@Override
@@ -259,23 +278,44 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	public Integer visitRepete(RepeteContext ctx) {
 		int b = visit(ctx.expr());
 		if(b==0) {
+			// Table des symboles du block
+			this.tableSymbole.push(new HashMap<String, Double>());
 			for (int i=0; i<getValue(ctx.expr()); i++) {
+				// Ajout dans la pile de la valeur de la boucles
 				this.loopMemory.push(i+1);
 				for ( InstructionContext instuction : ctx.liste_instructions().instruction()){
 					visit(instuction);
 				}
+				// Suppression de la valeur obscolète de la boucle
 				this.loopMemory.pop();
 			}	
+			// On dépile les symbole
+			this.tableSymbole.pop();
 		}
 		return b;
 	}
 	
 	@Override
 	public Integer visitLoop(LoopContext ctx) {
+		if(this.loopMemory.isEmpty()) {
+			log.appendLog("Impossible d'utiliser loop sans repétition");
+			return 1;
+		}
 		Integer value = this.loopMemory.element();
 		setValue(ctx, value);
-
 		return 0;
+	}
+	
+	@Override
+	public Integer visitVariables(VariablesContext ctx) {
+		for (Map<String, Double> mapDesBlock : this.tableSymbole) {
+			if (mapDesBlock.containsKey(ctx.VAR().getText())){
+				setValue(ctx, mapDesBlock.get(ctx.VAR().getText()));
+				return 0;
+			}
+		}
+		log.appendLog("Symbol \"", ctx.VAR().getText(), "\" est introuvable");
+		return 1;
 	}
 
 	/**
