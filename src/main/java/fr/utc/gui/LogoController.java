@@ -55,7 +55,7 @@ public class LogoController {
 	public void initialize() {
 		createSwingContent();
 		canvas.setWidth(640);
-		canvas.setHeight(640);
+		canvas.setHeight(1000);
 		// Construit l'instance qui gère l'affichage progressif des tracés
 		// dans le canvas
 		logoGraphContext = new LogoGraphContext(canvas.getGraphicsContext2D());
