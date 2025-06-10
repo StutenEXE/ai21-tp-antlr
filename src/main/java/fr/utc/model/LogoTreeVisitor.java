@@ -251,6 +251,8 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	@Override
 	public Integer visitDeclarationProcedure(DeclarationProcedureContext ctx) {
 		String procedureName = ctx.NAME().getText();
+		// Surcharge de fonctions
+		procedureName += ctx.VAR().size();
 		Queue<String> symboles = new LinkedList<String>();
 		for (TerminalNode s : ctx.VAR()) {
 			symboles.add(s.getText());
@@ -268,9 +270,10 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	}
 	
 	@Override
-	public Integer visitExecuteProcedure(ExecuteProcedureContext ctx) {					
-		if(this.procedure.containsKey(ctx.NAME().getText())) {
-			Pair<Liste_instructionsContext, Queue<String>> proc =  this.procedure.get(ctx.NAME().getText());
+	public Integer visitExecuteProcedure(ExecuteProcedureContext ctx) {			
+		String procedureName = ctx.NAME().getText() + ctx.expr().size();
+		if(this.procedure.containsKey(procedureName)) {
+			Pair<Liste_instructionsContext, Queue<String>> proc =  this.procedure.get(procedureName);
 			Map<String, Double> symbol = new HashMap<String, Double>();
 			if(ctx.expr().size() != proc.b.size()) {
 				log.appendLog("Erreur, nombre de paramètre attendu : ", String.valueOf(proc.b.size()), " Mais reçu : ", String.valueOf(ctx.expr().size()));
@@ -290,13 +293,13 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 				// Lancement de l'exécution:
 				this.tableSymbole.push(symbol);
 				log.defaultLog(ctx);
-				log.appendLog("Execution de la procedure ", ctx.NAME().getText());
+				log.appendLog("Execution de la procedure ", procedureName);
 				int b = visit(proc.a);
 				this.tableSymbole.pop();
 				return b;
 			}
 		}
-		log.appendLog("Erreur, Procedure inconnue : ", ctx.NAME().getText());
+		log.appendLog("Erreur, Procedure inconnue : ", procedureName);
 		return 1;
 	}
 	
@@ -448,8 +451,9 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	
 	@Override
 	public Integer visitExecuteFonction(ExecuteFonctionContext ctx) {
-		if(this.fonction.containsKey(ctx.NAME().getText())) {
-			Pair<Liste_instructionsContext, Queue<String>> proc =  this.fonction.get(ctx.NAME().getText());
+		String fonctionName = ctx.NAME().getText() + ctx.expr().size();
+		if(this.fonction.containsKey(fonctionName)) {
+			Pair<Liste_instructionsContext, Queue<String>> proc =  this.fonction.get(fonctionName);
 			Map<String, Double> symbol = new HashMap<String, Double>();
 			if(ctx.expr().size() != proc.b.size()) {
 				log.appendLog("Erreur, nombre de paramètre attendu : ", String.valueOf(proc.b.size()), " Mais reçu : ", String.valueOf(ctx.expr().size()));
@@ -469,7 +473,7 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 				// Lancement de l'exécution:
 				this.tableSymbole.push(symbol);
 				log.defaultLog(ctx);
-				log.appendLog("Execution de la fonction ", ctx.NAME().getText());
+				log.appendLog("Execution de la fonction ", fonctionName);
 				int b = visit(proc.a);
 				if(b==0) {
 					Double value = this.retour.pop();
