@@ -1,0 +1,36 @@
+pour div2 :a :b
+	rends ( :a + :b ) / 2
+fin
+pour triangle :xA :xB :xC :yA :yB :yC :n
+	si :n > 0 [
+		fcc :n
+		donne "xE div2 ( :xA :xB )
+		donne "yE div2 ( :yA :yB )
+		
+		donne "xF div2 ( :xB :xC )
+		donne "yF div2 ( :yB :yC )
+		
+		donne "xG div2 ( :xA :xC )
+		donne "yG div2 ( :yA :yC )
+
+		lc
+		fpos [:xE :yE]
+		bc
+		fpos [:xF :yF]
+		fpos [:xG :yG]
+		fpos [:xE :yE]
+		donne "n :n - 1
+		triangle (  :xA :xE :xG :yA :yE :yG :n )
+		triangle (  :xE :xB :xF :yE :yB :yF :n )
+		triangle (  :xG :xF :xC :yG :yF :yC :n )
+	]
+fin
+
+// Triangle principale
+lc
+fpos [200 0]
+bc
+fpos [400 200]
+fpos [0 200]
+fpos [200 0]
+triangle ( 200 400 0 0 200 200 6)
