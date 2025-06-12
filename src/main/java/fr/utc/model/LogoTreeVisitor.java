@@ -384,6 +384,20 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 	}
 	
 	@Override
+	public Integer visitModulo(ModuloContext ctx) {
+		Pair<Integer, Double> left, right;
+		left = evaluate(ctx.expr(0));
+		right = evaluate(ctx.expr(1));
+		if (left.a == 0 && right.a == 0) {
+			Double r = Double.POSITIVE_INFINITY;	
+			r = left.b % right.b;
+			setValue(ctx, r);
+			return 0;
+		}
+		return left.a == 0 ? right.a : left.a;
+	}
+	
+	@Override
 	public Integer visitHasard(HasardContext ctx) {
 		int b = visit(ctx.expr());
 	    if (b == 0) {

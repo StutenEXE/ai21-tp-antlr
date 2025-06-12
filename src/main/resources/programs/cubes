@@ -1,0 +1,30 @@
+pour side 
+	av 50
+	td 120
+  	av 50
+        td  60
+        av 50
+fin
+
+pour cube :x :y
+	repete 3 [
+		lc 
+		fpos [:x :y]
+		bc
+		tg 60
+		side()
+	]
+fin
+
+repete 6 [
+	donne "y (loop - 1) * 75
+	donne "yIdx loop
+	repete 8 [
+		donne "x (loop - 1) * 87 
+		si (:yIdx % 2) < 1 [
+			donne "x :x + 43
+		]
+		cube (:x :y)
+		fcc :yIdx
+	]
+]

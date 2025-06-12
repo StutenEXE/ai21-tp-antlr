@@ -48,6 +48,7 @@ predicat :
 
 expr:
  expr ('*' | '/' ) expr # mult
+ | expr '%' expr # modulo
  | expr ('+' | '-' ) expr # sum
  | FLOAT #float
  | '(' expr ')' #parenthese
