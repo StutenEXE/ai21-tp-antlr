@@ -21,10 +21,10 @@ repete 6 [
 	donne "yIdx loop
 	repete 8 [
 		donne "x (loop - 1) * 87 
-		si (:yIdx % 2) < 1 [
+		si (:yIdx % 2) = 0 [
 			donne "x :x + 43
 		]
 		cube (:x :y)
-		fcc :yIdx
+		fcc :yIdx * loop
 	]
 ]

@@ -8,7 +8,7 @@ COMMENT1 : '//' .*? [\r\n]+ -> skip;
 COMMENT2 : '/*' .*? '*/' -> skip;
 VAR : ':'[A-Za-z][A-Za-z0-9]*;
 NAME : [A-Za-z][A-Za-z0-9]*;
-COMPARATOR : ('<' | '>');
+COMPARATOR : ('<' | '>' | '=');
 
 procedure: 
  'pour' NAME VAR* liste_instructions 'fin' # declarationProcedure

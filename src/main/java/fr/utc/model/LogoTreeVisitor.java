@@ -539,9 +539,15 @@ public class LogoTreeVisitor extends LogoStoppableTreeVisitor {
 			if(sign.equals("<")) {
 				log.appendLog("Comparaison de  ", String.valueOf(valL), " < ", String.valueOf(valR));
 				return new Pair<Integer, Integer>(b, (valL < valR ? 1: 0));
-			}else {
+			}
+			else if(sign.equals(">")) {
 				log.appendLog("Comparaison de  ", String.valueOf(valL), " > ", String.valueOf(valR));
 				return new Pair<Integer, Integer>(b, (valL > valR ? 1: 0));
+			}
+			else { 
+				log.appendLog("Comparaison de  ", String.valueOf(valL), " = ", String.valueOf(valR));
+				// Sans utiliser doubleValue ca ne marche pas
+				return new Pair<Integer, Integer>(b, (valL.doubleValue() == valR.doubleValue() ? 1: 0));
 			}
 		}
 		return new Pair<Integer, Integer>(b, Integer.MAX_VALUE);
